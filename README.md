@@ -10,4 +10,3 @@ Here are the steps needed to run our simulation in V-REP
 4. Click File-> Open Scene-> my_ur10
 5. If python 3 is not istalled, [download and install it from](https://www.anaconda.com)
 5. From the vrep_code directory, run `python test.py`
-6. profit
