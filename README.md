@@ -8,5 +8,5 @@ Here are the steps needed to run our simulation in V-REP
 3. move my_ur10.ttt to vrep->scenes
 3. in the vrep directory, run V-REP from the terminal command line with `./vrep.app/Contents/MacOS/vrep`
 4. Click File-> Open Scene-> my_ur10
-5. If python 3 is not istalled, [download and install it from](https://www.anaconda.com)
+5. If python 3 is not istalled, [download and install it](https://www.anaconda.com)
 5. From the vrep_code directory, run `python test.py`
