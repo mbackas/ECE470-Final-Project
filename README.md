@@ -17,5 +17,5 @@ Here are the steps needed to run our simulation in V-REP
 ## Simulation 2: forward kinematics
 0. complete above steps
 1. pull the repository
-2. copy the new files forwardKinematics.py and test2.py into vrep_code
+999. copy the new files forwardKinematics.py and test2.py into vrep_code
 3. run `python test2.py`
