@@ -10,3 +10,12 @@ Here are the steps needed to run our simulation in V-REP
 4. Click File-> Open Scene-> my_ur10
 5. If python 3 is not istalled, [download and install it](https://www.anaconda.com)
 5. From the vrep_code directory, run `python test.py`
+
+
+
+
+## Simulation 2: forward kinematics
+0. complete above steps
+1. pull the repository
+2. copy the new files forwardKinematics.py and test2.py into vrep_code
+3. run `python test2.py`
