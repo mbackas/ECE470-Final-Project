@@ -19,3 +19,10 @@ Here are the steps needed to run our simulation in V-REP
 1. pull the repository
 999. copy the new files forwardKinematics.py and test2.py into vrep_code
 3. run `python test2.py`
+
+##Simulation 4: collision detection
+0. Complete the above steps
+1. Pull the repository
+2. Copy new files test4.py and `my_ur3.ttt` files into vrep_code.
+4. Load `my_ur3.ttt` in vrep
+3. Run 'python test4.py'
