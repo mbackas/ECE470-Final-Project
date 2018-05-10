@@ -5,9 +5,7 @@ Here are the steps needed to run our simulation in V-REP
 1. Clone or download this repository
 1. download [V-REP](http://coppeliarobotics.com/files/V-REP_PRO_EDU_V3_4_0_Mac.zip)
 2. extract the file and rename vrep, for brevity.
-3. move my_ur10.ttt to vrep->scenes
 3. in the vrep directory, run V-REP from the terminal command line with `./vrep.app/Contents/MacOS/vrep`
-4. Click File-> Open Scene-> my_ur10
 5. If python 3 is not istalled, [download and install it](https://www.anaconda.com)
 5. From the vrep_code directory, run `python test.py`
 
@@ -26,3 +24,7 @@ Here are the steps needed to run our simulation in V-REP
 2. Copy new files test4.py and `my_ur3.ttt` files into vrep_code.
 4. Load `my_ur3.ttt` in vrep
 3. Run `python test4.py`
+
+## Final Project
+0. Complete the above steps for installing V-REP
+1. Pull 
