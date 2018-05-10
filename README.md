@@ -27,4 +27,9 @@ Here are the steps needed to run our simulation in V-REP
 
 ## Final Project
 0. Complete the above steps for installing V-REP
-1. Pull 
+1. Download the Repo (everything needed is in MotionPlanning directory)
+3. Open MotionPlanning in MatLab
+4. Load the scene my_ur3.ttt in V-REP
+5. type `run` in matLab command window
+6. Success? try moving object and goal positions, also move cyclinder positions
+7. Enjoy
