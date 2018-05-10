@@ -1,0 +1,444 @@
+function project(a, b)
+    %% pass in simulation parameters
+    vrep = a;
+    clientID = b;
+    vrep.simxSynchronous(clientID, false);
+
+    %% Declare Initial pose
+    M=[0  1  0      0; 
+       0  0  1      .26 + .05; 
+       1  0  0      6.5096e-01; 
+       0  0 0       1];
+%% Declare screw axes
+    a1 = [0 0 1]';
+    a2 = [0 1 0]';
+    a3 = [0 1 0]';
+    a4 = [0 1 0]';
+    a5 = [0 0 1]';
+    a6 = [0 1 0]';
+    
+    load p_rob_init.mat p_robot
+    
+    
+    
+    r_robot(:,1) = .045;  % 1
+    r_robot(:,2) = 0.08;  % 2
+    r_robot(:,3) = 0.07;  % 3
+    r_robot(:,4) = 0.065; % 4b
+    r_robot(:,5) = 0.065; % 4
+    r_robot(:,6) = 0.05;  % 5c
+    r_robot(:,7) = 0.05;  % 5b
+    r_robot(:,8) = 0.05;  % 5
+    r_robot(:,9) = 0.05;  % 6
+    r_robot(:,10) = .05; % 7b
+    r_robot(:,11) = .05; % 7
+    r_robot(:,12) = .048;% 8
+    
+    q1 = [-6.8982e-04 -1.9437e-04 0]';
+    q2 = [-6.8685e-09 0 1.0874e-01]';
+    q3 = [8.3203e-04 0 3.5239e-01]';
+    q4 = [1.4180e-03 0 5.6564e-01]';
+    q5 = [1.7086e-03 1.1244e-01 0]';
+    q6 = [1.7052e-03 0 6.5103e-01]';
+    
+    S1 = [a1; -skew3(a1)*q1];
+    S2 = [a2; -skew3(a2)*q2];
+    S3 = [a3; -skew3(a3)*q3];
+    S4 = [a4; -skew3(a4)*q4];
+    S5 = [a5; -skew3(a5)*q5];
+    S6 = [a6; -skew3(a6)*q6];
+
+    S = [S1 S2 S3 S4 S5 S6];
+    
+    if clientID == -1
+    disp('Failed connecting to remote API server');
+    end
+    
+    %% get joint/object handles
+    [result,UR3_handle] = vrep.simxGetObjectHandle(clientID,'UR3',vrep.simx_opmode_blocking);
+
+    % get object handle
+    [result, object_handle] = vrep.simxGetObjectHandle(clientID, 'object', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for object');
+    end
+
+
+    % Get "handle" to the first joint of robot
+    [result, joint_one_handle] = vrep.simxGetObjectHandle(clientID, 'UR3_joint1', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for first joint');
+    end
+
+    % Get "handle" to the second joint of robot
+    [result, joint_two_handle] = vrep.simxGetObjectHandle(clientID, 'UR3_joint2', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for second joint');
+    end
+
+    % Get "handle" to the third joint of robot
+    [result, joint_three_handle] = vrep.simxGetObjectHandle(clientID, 'UR3_joint3', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for third joint');
+    end
+
+    % Get "handle" to the fourth joint of robot
+    [result, joint_four_handle] = vrep.simxGetObjectHandle(clientID, 'UR3_joint4', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for fourth joint');
+    end
+
+    % Get "handle" to the fifth joint of robot
+    [result, joint_five_handle] = vrep.simxGetObjectHandle(clientID, 'UR3_joint5', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for fifth joint');
+    end
+
+    % Get "handle" to the sixth joint of robot
+    [result, joint_six_handle] = vrep.simxGetObjectHandle(clientID, 'UR3_joint6', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for sixth joint');
+    end
+    
+    [result, DummyObj_handle] = vrep.simxGetObjectHandle(clientID, 'DummyObj', vrep.simx_opmode_blocking);
+    if result ~= vrep.simx_return_ok
+        disp('could not get object handle for object');
+    end
+    handle_joint = [joint_one_handle joint_two_handle joint_three_handle joint_four_handle joint_five_handle joint_six_handle];
+    %% bounding volume/goal handles
+    [result,sphere1_handle] = vrep.simxGetObjectHandle(clientID,'Dummy1',vrep.simx_opmode_blocking);
+    
+    [result,sphere2_handle] = vrep.simxGetObjectHandle(clientID,'Dummy2',vrep.simx_opmode_blocking);
+    
+    [result,sphere3_handle] = vrep.simxGetObjectHandle(clientID,'Dummy3',vrep.simx_opmode_blocking);
+    
+    [result,sphere4_handle] = vrep.simxGetObjectHandle(clientID,'Dummy4',vrep.simx_opmode_blocking);
+    [result,sphere4b_handle] =vrep.simxGetObjectHandle(clientID,'Dummy4b',vrep.simx_opmode_blocking);
+    
+    [result,sphere5_handle] = vrep.simxGetObjectHandle(clientID,'Dummy5',vrep.simx_opmode_blocking);
+    [result,sphere5b_handle] =vrep.simxGetObjectHandle(clientID,'Dummy5b',vrep.simx_opmode_blocking);
+    [result,sphere5c_handle] =vrep.simxGetObjectHandle(clientID,'Dummy5c',vrep.simx_opmode_blocking);
+    
+    [result,sphere6_handle] = vrep.simxGetObjectHandle(clientID,'Dummy6',vrep.simx_opmode_blocking);
+    
+    [result,sphere7_handle] = vrep.simxGetObjectHandle(clientID,'Dummy7',vrep.simx_opmode_blocking);
+    [result,sphere7b_handle] = vrep.simxGetObjectHandle(clientID,'Dummy7b',vrep.simx_opmode_blocking);
+    
+    [result,sphere8_handle] = vrep.simxGetObjectHandle(clientID,'Dummy8',vrep.simx_opmode_blocking);
+    
+    
+    [result,cyl_handle] = vrep.simxGetObjectHandle(clientID,'Cylinder',vrep.simx_opmode_blocking);
+    [result,cyl0_handle] = vrep.simxGetObjectHandle(clientID,'Cylinder0',vrep.simx_opmode_blocking);
+    [result,cyl1_handle] = vrep.simxGetObjectHandle(clientID,'Cylinder1',vrep.simx_opmode_blocking);
+
+    [result,goal_handle] =vrep.simxGetObjectHandle(clientID,'DummyGoal',vrep.simx_opmode_blocking);
+    handle_obj = [sphere1_handle sphere2_handle sphere3_handle sphere4b_handle sphere4_handle sphere5c_handle sphere5b_handle sphere5_handle sphere6_handle sphere7b_handle sphere7_handle sphere8_handle UR3_handle];
+    %% Get positions of dummies
+%     [result, position1] = vrep.simxGetObjectPosition(clientID, sphere1_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position2] = vrep.simxGetObjectPosition(clientID, sphere2_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position3] = vrep.simxGetObjectPosition(clientID, sphere3_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position4] = vrep.simxGetObjectPosition(clientID, sphere4_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position4b] =vrep.simxGetObjectPosition(clientID, sphere4b_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position5] = vrep.simxGetObjectPosition(clientID, sphere5_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position5b] =vrep.simxGetObjectPosition(clientID, sphere5b_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position5c] =vrep.simxGetObjectPosition(clientID, sphere5c_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position6] = vrep.simxGetObjectPosition(clientID, sphere6_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position7] = vrep.simxGetObjectPosition(clientID, sphere7_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position7b] = vrep.simxGetObjectPosition(clientID, sphere7b_handle, UR3_handle, vrep.simx_opmode_blocking);
+%     [result, position8] = vrep.simxGetObjectPosition(clientID, sphere8_handle, UR3_handle, vrep.simx_opmode_blocking);
+    [result, position_cyl] = vrep.simxGetObjectPosition(clientID, cyl_handle, UR3_handle, vrep.simx_opmode_blocking);
+    [result, position_cyl0] = vrep.simxGetObjectPosition(clientID, cyl0_handle, UR3_handle, vrep.simx_opmode_blocking);
+    [result, position_cyl1] = vrep.simxGetObjectPosition(clientID, cyl1_handle, UR3_handle, vrep.simx_opmode_blocking);
+
+    [result, position] = vrep.simxGetObjectPosition(clientID, DummyObj_handle, UR3_handle, vrep.simx_opmode_blocking);
+    [result, position_goal] = vrep.simxGetObjectPosition(clientID, goal_handle, UR3_handle, vrep.simx_opmode_blocking);
+    % position 8 is just the end of the robot plus the radius of its
+    % bounding volune
+     p_robot(:,2,8) = M(1:3,4);
+%     position8(1,2) = position8(1,2);
+    
+    % Start simulation
+%     position(3) = position(3);
+
+
+    %% place these objects in their intial positions
+    C = find_centers(p_robot, S, zeros(6,1));
+    vrep.simxSetObjectPosition(b,handle_obj(1),handle_obj(end),C(1:3,1),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(2),handle_obj(end),C(1:3,2),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(3),handle_obj(end),C(1:3,3),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(4),handle_obj(end),C(1:3,4),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(5),handle_obj(end),C(1:3,5),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(6),handle_obj(end),C(1:3,6),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(7),handle_obj(end),C(1:3,7),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(8),handle_obj(end),C(1:3,8),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b, handle_obj(9), handle_obj(end), C(1:3,9), vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b,handle_obj(10),handle_obj(end),C(1:3,10),vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b, handle_obj(11), handle_obj(end), C(1:3,11), vrep.simx_opmode_oneshot);
+    vrep.simxSetObjectPosition(b, handle_obj(12), handle_obj(end), C(1:3,12), vrep.simx_opmode_oneshot);
+
+    %% robot is in intial state
+    [returnCode] = vrep.simxSetJointPosition(b, handle_joint(1), 0, vrep.simx_opmode_oneshot);
+    [returnCode] = vrep.simxSetJointPosition(b, handle_joint(2), 0, vrep.simx_opmode_oneshot);
+    [returnCode] = vrep.simxSetJointPosition(b, handle_joint(3), 0, vrep.simx_opmode_oneshot);
+    [returnCode] = vrep.simxSetJointPosition(b, handle_joint(4), 0, vrep.simx_opmode_oneshot);
+    [returnCode] = vrep.simxSetJointPosition(b, handle_joint(5), 0, vrep.simx_opmode_oneshot);
+    [returnCode] = vrep.simxSetJointPosition(b, handle_joint(6), 0, vrep.simx_opmode_oneshot);
+    %% assemble bounding volumes of obstacles/floor
+    p_obstacle = zeros(3,150);
+    r_obstacle = zeros(1,150);
+    for i = 1:25
+%         [result,dummyhandle] = vrep.simxCreateDummy(clientID, .11, [], vrep.simx_opmode_blocking);
+%         vrep.simxSetObjectPosition(clientID, dummyhandle, UR3_handle, [position_cyl(1); position_cyl(2); (i-1)*(1)/24], vrep.simx_opmode_oneshot);
+%          [result,dummyhandle0] = vrep.simxCreateDummy(clientID, .12, [], vrep.simx_opmode_blocking);
+%          vrep.simxSetObjectPosition(clientID, dummyhandle0, UR3_handle, [position_cyl1(1); position_cyl1(2) - .5 + (i-1)/24; position_cyl1(3)], vrep.simx_opmode_oneshot);
+        p_obstacle(:,i) = [position_cyl(1); position_cyl(2); (i-1)*(1)/24];
+        r_obstacle(:,i) = .07;
+        p_obstacle(:,25 + i) = [position_cyl0(1); position_cyl0(2); (i-1)*(1)/24];
+        r_obstacle(:,25 + i) = .07;
+        p_obstacle(:,50 + i) = [position_cyl1(1); position_cyl1(2) - .5 + (i-1)/24; position_cyl1(3)];
+        r_obstacle(:,50 + i) = .07;
+    end
+    for i=1:10
+        for j = 0:9
+%             [~,dummyhandle] = vrep.simxCreateDummy(clientID, .25, [], vrep.simx_opmode_blocking);
+%             vrep.simxSetObjectPosition(clientID, dummyhandle, UR3_handle, [-.5+(i-1)/9; -.5 + j/9; -.125], vrep.simx_opmode_oneshot);
+            p_obstacle(:,75+i+j*10) = [-.5+(i-1)/9; -.5 + j/9; -.125];
+            r_obstacle(:,75+i+j*10) = .125;
+        end
+    end
+    %% define goal Pose
+     R_goal = [1 0  0;
+               0 -1  0;
+               0 0 -1];
+     %position(3) = position(3) + .1;
+     T_goal = [R_goal position';
+               0    0   0    1];
+           
+    %% move to just above 
+     %disp(T_goal);
+     theta_start = zeros(6,1); % start at default config
+     r = false;
+     while(r==false)
+         b = true;
+         while (b == true)
+             [theta, theta_seed] = find_ik(clientID, handle_joint, S, M, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, T_goal); %% use current config as input
+             if(collision_rob_env(S, theta, p_robot, p_obstacle, r_robot, r_obstacle))
+                b = true;
+             else
+                b = false;
+             end
+         end
+         theta_goal = theta;
+         disp('theta goal');
+         disp(theta);
+         disp('finding path from start to obj')
+         [r,q] = find_path(clientID, S, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, handle_obj, handle_joint); % path planning
+     end
+%      T_goal(3,4) = T_goal(3,4) + .1;
+%      r = false;
+%      while(r==false)
+%          [theta, ~] = find_ik(S, M, p_robot, r_robot, p_obstacle, r_obstacle, theta_seed, T_goal); %% use current config as input
+%          theta_goal = theta;
+%          disp('theta goal');
+%          disp(theta);
+%          disp('finding path from start to obj')
+%          [r,q] = find_path(clientID, S, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, handle_obj, handle_joint); % path planning
+%      end
+     vrep.simxStartSimulation(clientID, vrep.simx_opmode_blocking);
+     move_joints(clientID, handle_joint, zeros(6,1));
+ % next start = previous finish
+    %q = theta_goal;
+     disp(q);
+     disp('following path from start to obj')
+     for i= 2:size(q,2)
+         theta = q(:,i);
+         %theta_b = q(:,i+1);
+         C = find_centers(p_robot, S, theta);
+        vrep.simxSetObjectPosition(b,handle_obj(1),handle_obj(end),C(1:3,1),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(2),handle_obj(end),C(1:3,2),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(3),handle_obj(end),C(1:3,3),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(4),handle_obj(end),C(1:3,4),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(5),handle_obj(end),C(1:3,5),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(6),handle_obj(end),C(1:3,6),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(7),handle_obj(end),C(1:3,7),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(8),handle_obj(end),C(1:3,8),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(9), handle_obj(end), C(1:3,9), vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(10),handle_obj(end),C(1:3,10),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(11), handle_obj(end), C(1:3,11), vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(12), handle_obj(end), C(1:3,12), vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(11), handle_obj(end), C(1:3,11), vrep.simx_opmode_oneshot);
+        move_joints(clientID, handle_joint, theta);
+     end
+     pause(2);
+     vrep.simxPauseSimulation(clientID, vrep.simx_opmode_blocking);
+
+    % Sleep for one second
+
+    disp(position_goal);
+
+
+    %% move lower to grip and activate gripper
+%     T_goal = [R_goal position';
+%                0    0   0    1];
+%      b = false;
+%      while (b == true)
+%          [theta, ~] = find_ik(S, M, p_robot, r_robot, p_obstacle, r_obstacle, theta_seed, T_goal); %% use current config as input
+%          b = true;
+%      end
+%      theta_goal = theta;
+%      vrep.simxStartSimulation(clientID, vrep.simx_opmode_blocking);
+%      disp('moving slightly lower...') 
+%      pause(3);
+%      move_joints(clientID, handle_joint, theta_goal);
+     vrep.simxStartSimulation(clientID, vrep.simx_opmode_blocking);
+     pause(1);
+    theta_start = theta_goal; % next start = previous finish
+    gripper = 'BaxterVacuumCup_active';
+    disp('gripper activate')
+    pause(.05);
+    result = vrep.simxSetIntegerSignal(clientID, gripper, 1, vrep.simx_opmode_blocking);
+    pause(.5);
+    vrep.simxPauseSimulation(clientID, vrep.simx_opmode_blocking);
+%     
+
+%% move to default config
+%     theta_goal = real(find_ik(S, M, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, M));
+%    disp('finding path from obj to default')
+%     q = find_path(clientID, S, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, handle_obj, handle_joint);
+%      theta_start = theta_goal;
+%      %q = theta_goal;
+%      disp(q);
+%      pause(2);
+%      disp('moving from obj to default')
+%      for i= 2:size(q,2)
+%          theta = q(:,i);
+%          %theta_b = q(:,i+1);
+%          move_joints(clientID, handle_joint, theta); 
+%          C = find_centers(p_robot, S, theta);
+%         vrep.simxSetObjectPosition(b,handle_obj(2),handle_obj(end),C(1:3,2),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b,handle_obj(3),handle_obj(end),C(1:3,3),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b,handle_obj(4),handle_obj(end),C(1:3,4),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b,handle_obj(5),handle_obj(end),C(1:3,5),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b,handle_obj(6),handle_obj(end),C(1:3,6),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b,handle_obj(7),handle_obj(end),C(1:3,7),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b,handle_obj(8),handle_obj(end),C(1:3,8),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b, handle_obj(9), handle_obj(end), C(1:3,9), vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b,handle_obj(10),handle_obj(end),C(1:3,10),vrep.simx_opmode_oneshot);
+%         vrep.simxSetObjectPosition(b, handle_obj(11), handle_obj(end), C(1:3,11), vrep.simx_opmode_oneshot);
+%     end
+    %% move to goal
+    position = position_goal;
+    R_goal = [ 0 0  1;
+               0 -1 0;
+               1 0  0];
+     %position(3) = 0;
+     T_goal = [R_goal position';
+               0    0   0     1];
+           disp(T_goal)
+     r = false;
+     while(r==false)
+         b = true;
+         while (b == true)
+             [theta, theta_good] = find_ik(clientID, handle_joint, S, M, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, T_goal); %% use current config as input
+             if(collision_rob_env(S, theta, p_robot, p_obstacle, r_robot, r_obstacle))
+                b = true;
+             else
+                b = false;
+             end
+         end
+         theta_goal = theta;
+         disp('theta goal');
+         disp(theta);
+         disp('finding path from start to obj')
+         [r,q] = find_path(clientID, S, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, handle_obj, handle_joint); % path planning
+     end
+     theta_start = theta_goal;
+    %q = theta_goal;
+     disp(q);
+     disp('moving from default to goal')
+     vrep.simxStartSimulation(clientID, vrep.simx_opmode_blocking);
+     pause(2);
+     for i= 2:size(q,2)
+         theta = q(:,i);
+         %theta_b = q(:,i+1);
+         C = find_centers(p_robot, S, theta);
+        vrep.simxSetObjectPosition(b,handle_obj(1),handle_obj(end),C(1:3,1),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(2),handle_obj(end),C(1:3,2),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(3),handle_obj(end),C(1:3,3),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(4),handle_obj(end),C(1:3,4),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(5),handle_obj(end),C(1:3,5),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(6),handle_obj(end),C(1:3,6),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(7),handle_obj(end),C(1:3,7),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(8),handle_obj(end),C(1:3,8),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(9), handle_obj(end), C(1:3,9), vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(10),handle_obj(end),C(1:3,10),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(11), handle_obj(end), C(1:3,11), vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(12), handle_obj(end), C(1:3,12), vrep.simx_opmode_oneshot);
+
+        move_joints(clientID, handle_joint, theta); 
+     end
+    pause(2);
+    vrep.simxPauseSimulation(clientID, vrep.simx_opmode_blocking);
+    %% deactivate gripper
+    vrep.simxStartSimulation(clientID, vrep.simx_opmode_blocking);
+    gripper = 'BaxterVacuumCup_active';
+    disp('release gripper');
+    result = vrep.simxSetIntegerSignal(clientID, gripper, 0, vrep.simx_opmode_oneshot);
+    pause(1);
+    vrep.simxPauseSimulation(clientID, vrep.simx_opmode_blocking);
+    %% last ik to default
+     T_goal = M;
+     r = false;
+     while(r==false)
+         b = true;
+         while (b == true)
+             [theta, theta_good] = find_ik(clientID, handle_joint, S, M, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, T_goal); %% use current config as input
+             if(collision_rob_env(S, theta, p_robot, p_obstacle, r_robot, r_obstacle))
+                b = true;
+             else
+                b = false;
+             end
+         end
+         theta_goal = theta;
+         disp('theta goal');
+         disp(theta);
+         disp('finding path from start to obj')
+         [r,q] = find_path(clientID, S, p_robot, r_robot, p_obstacle, r_obstacle, theta_start, theta_goal, handle_obj, handle_joint); % path planning
+     end
+     disp(q);
+     disp('moving from goal to default');
+     vrep.simxStartSimulation(clientID, vrep.simx_opmode_blocking);
+     for i= 2:size(q,2)
+         theta = q(:,i);
+         %theta_b = q(:,i+1);
+         C = find_centers(p_robot, S, theta);
+        vrep.simxSetObjectPosition(b,handle_obj(1),handle_obj(end),C(1:3,1),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(2),handle_obj(end),C(1:3,2),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(3),handle_obj(end),C(1:3,3),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(4),handle_obj(end),C(1:3,4),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(5),handle_obj(end),C(1:3,5),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(6),handle_obj(end),C(1:3,6),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(7),handle_obj(end),C(1:3,7),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(8),handle_obj(end),C(1:3,8),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(9), handle_obj(end), C(1:3,9), vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b,handle_obj(10),handle_obj(end),C(1:3,10),vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(11), handle_obj(end), C(1:3,11), vrep.simx_opmode_oneshot);
+        vrep.simxSetObjectPosition(b, handle_obj(12), handle_obj(end), C(1:3,12), vrep.simx_opmode_oneshot);
+
+        move_joints(clientID, handle_joint, theta);
+     end
+     [retval, fire_handle] = vrep.simxGetObjectHandle(b, 'fire', vrep.simx_opmode_blocking);
+     vrep.simxSetObjectPosition(b, fire_handle, vrep.sim_handle_parent, [0;0;0], vrep.simx_opmode_oneshot);
+     pause(2);
+    disp('FINISH!');
+    vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking);
+        %set_joint_angles(zeros(6,1));
+
+    % Sleep for five seconds
+    pause(1);
+
+    % Check that last command has arrived
+    vrep.simxGetPingTime(clientID);
+    % Finish simulation
+    vrep.simxFinish(clientID);
+end
