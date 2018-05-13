@@ -24,9 +24,11 @@ function [r,q] = find_path(b, S, p_robot, r_robot, p_obstacle, r_obstacle, theta
     else
         if s_fwd == 0
             disp('initial position is in collision!');
+            return;
         end
         if s_bwd == 0
             disp('goal position in collision!');
+            return;
         end
     end
     while((s_fwd~=-1 || s_bwd~=-1) && count < 500)

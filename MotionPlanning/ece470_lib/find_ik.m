@@ -28,7 +28,7 @@ function [theta, theta_seed] = find_ik(b, handle_joint, S, M, p_rob, r_rob, p_ob
 
             J_s = jacobian(S, theta);
 
-            mu = 1e-4;
+            mu = 1e-3;
             thetadot = (J_s' * J_s + mu*eye(n))\(J_s' * V_s);
             theta = theta + thetadot;
 %             for i = 1:numel(theta) % theta % (-pi, pi]
@@ -62,7 +62,6 @@ function [theta, theta_seed] = find_ik(b, handle_joint, S, M, p_rob, r_rob, p_ob
             [returnCode] = vrep.simxSetJointPosition(b, handle_joint(5), theta(5), vrep.simx_opmode_oneshot);
             [returnCode] = vrep.simxSetJointPosition(b, handle_joint(6), theta(6), vrep.simx_opmode_oneshot);
             vrep.simxPauseCommunication(b,0);
-
             disp('found theta!');
             pause(1);
             [returnCode] = vrep.simxSetJointPosition(b, handle_joint(1), pos1, vrep.simx_opmode_oneshot);

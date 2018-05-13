@@ -398,7 +398,8 @@ function project(a, b)
     disp('release gripper');
     result = vrep.simxSetIntegerSignal(clientID, gripper, 0, vrep.simx_opmode_oneshot);
     pause(1);
-    for i= 2:size(q3,2)
+    vrep.simxPauseSimulation(clientID, vrep.simx_opmode_blocking);
+     for i= 2:size(q3,2)
          theta = q3(:,i);
          %theta_b = q(:,i+1);
          C = find_centers(p_robot, S, theta);

@@ -8,7 +8,7 @@ function move_joints(b, handle_joint, theta_b)
     [ret, theta_a(5,:)] = vrep.simxGetJointPosition(b, handle_joint(5), vrep.simx_opmode_blocking);
     [ret, theta_a(6,:)] = vrep.simxGetJointPosition(b, handle_joint(6), vrep.simx_opmode_blocking);
     theta_ = theta_a*.5+.1;
-    epsilon = .1;
+    epsilon = .001;
     norm_theta = norm(theta_b - theta_a);
     N = 1 + floor(norm_theta/epsilon);
     
@@ -24,9 +24,8 @@ function move_joints(b, handle_joint, theta_b)
         [returnCode] = vrep.simxSetJointTargetPosition(b, handle_joint(5), theta(5), vrep.simx_opmode_oneshot);
         [returnCode] = vrep.simxSetJointTargetPosition(b, handle_joint(6), theta(6), vrep.simx_opmode_oneshot);
         thetaPrev = theta_+.2;
-        while(norm(theta_-thetaPrev)>.0001)
+        while(norm(theta_-thetaPrev)>.001)
             thetaPrev = theta_;
-            pause(.01)
             retSum = 1;
             while (retSum ~= 0)
                 retSum = 0;

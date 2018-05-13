@@ -18,7 +18,6 @@ function s = path_collision_s(b, S, theta_a, theta_b, p_rob, p_obs, r_rob, r_obs
     for s = 0:1/N:1
         theta = (1-s)*theta_a + s*theta_b;
         if collision_rob_env(S, theta, p_rob, p_obs, r_rob, r_obs)
-%             pause(.1);
             return;
         end
 %         vrep.simxPauseCommunication(b,1);
@@ -31,5 +30,6 @@ function s = path_collision_s(b, S, theta_a, theta_b, p_rob, p_obs, r_rob, r_obs
 %         vrep.simxPauseCommunication(b,0);
         
     end
+%     pause(1);
     s = -1;
 end

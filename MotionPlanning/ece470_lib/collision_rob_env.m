@@ -8,7 +8,7 @@ function b = collision_rob_env(S, theta, p_rob, p_obs, r_rob, r_obs)
     for i = 1:num_rob_sphere
         for j = i+2:num_spheres
             if(collision(p(:,i), p(:,j), r(:,i), r(:,j)))
-                %fprintf('sphere %d collides with %d\n', i, j);
+                fprintf('sphere %d collides with %d\n', i, j);
                 b = true;
                 return;
             end
